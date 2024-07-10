@@ -9,7 +9,7 @@ const startMinute = ref("0");
 
 // 结束时间
 const endHour = ref("18");
-const endMinute = ref("0");
+const endMinute = ref("30");
 
 // 午休时间
 const seatHour = ref("1");
@@ -146,6 +146,14 @@ function submit(): void {
     }, 2000);
   }
 }
+
+onMounted(() => {
+  const now = new Date();
+  endHour.value = now.getHours();
+  endMinute.value = now.getMinutes();
+
+  submit();
+});
 </script>
 
 <template>
@@ -290,7 +298,7 @@ function submit(): void {
                 }"
               />
             </button>
-            <label id="switch-1-label" class="text-sm leading-6 text-gray-600">是否持续到第二天</label>
+            <label id="switch-1-label" class="text-sm leading-6 text-gray-600">是否持续到第二天(真的勇士！好心脏！好身体！)</label>
           </div>
         </div>
 
@@ -299,7 +307,7 @@ function submit(): void {
             type="submit"
             class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
           >
-            计算时间
+            计算
           </button>
         </div>
       </form>

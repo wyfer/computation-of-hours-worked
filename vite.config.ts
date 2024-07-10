@@ -1,7 +1,7 @@
-import { crx } from '@crxjs/vite-plugin'
-import vue from '@vitejs/plugin-vue'
 import { dirname, relative } from 'node:path'
 import { URL, fileURLToPath } from 'node:url'
+import { crx } from '@crxjs/vite-plugin'
+import vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import IconsResolver from 'unplugin-icons/resolver'
 import Icons from 'unplugin-icons/vite'
@@ -108,7 +108,7 @@ export default defineConfig({
     },
     minify: 'terser',
     terserOptions: {},
-    outDir: 'dist/chrome',
+    outDir: 'dist/computation-of-hours-worked-chrome',
   },
   server: {
     port: 8888,

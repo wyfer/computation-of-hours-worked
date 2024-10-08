@@ -2,7 +2,7 @@
   "name": "computation-of-hours-worked",
   "displayName": "一款工时计算插件（chrome、firefox 浏览器插件）",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "description": "工时计算（chrome、firefox 浏览器插件）",
   "repository": {

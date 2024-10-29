@@ -26,25 +26,25 @@ export default defineManifest(async (env) => ({
     type: 'module',
   },
   content_scripts: [
-    {
-      all_frames: false,
-      js: ['src/content-script/index.ts'],
-      matches: ['*://*/*'],
-      run_at: 'document_end',
-    },
+    // {
+    //   all_frames: false,
+    //   js: ['src/content-script/index.ts'],
+    //   matches: ['*://*/*'],
+    //   run_at: 'document_end',
+    // },
   ],
   offline_enabled: false,
   host_permissions: [],
   permissions: ['storage', 'tabs', 'background'],
   web_accessible_resources: [
-    {
-      matches: ['*://*/*'],
-      resources: ['src/content-script/index.ts'],
-    },
-    {
-      matches: ['*://*/*'],
-      resources: ['src/content-script/iframe/index.html'],
-    },
+    // {
+    //   matches: ['*://*/*'],
+    //   resources: ['src/content-script/index.ts'],
+    // },
+    // {
+    //   matches: ['*://*/*'],
+    //   resources: ['src/content-script/iframe/index.html'],
+    // },
   ],
   icons: {
     16: 'src/assets/logo.png',

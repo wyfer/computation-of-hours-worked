@@ -1,47 +1,27 @@
-// 获取时令信息
-export const getSeasonInfo = function (date: any): {
-  seasonText: string;
-  isWinter: boolean;
-  seasonHour: number;
-  seasonMinutes: number;
-} {
-  const month = new Date(date).getMonth() + 1;
-
-  // 获取冬夏时, 五月到10月之间为夏令时，其他时间为冬令时
-  const isWinter = month < 5 || month > 9;
-
-  const seasonHour = 1;
-  const seasonMinutes = isWinter ? 0 : 30;
-
-  const seasonText = isWinter ? "冬令时" : "夏令时";
-
-  return {
-    seasonText,
-    isWinter,
-    seasonHour,
-    seasonMinutes,
-  };
-};
-
-// 返回休息时间
-function setNoonBeakTime(date: Date, start = true) {
   // 获取时令信息
-  const { seasonMinutes } = getSeasonInfo(date);
+  export const getSeasonInfo = function (date: any): {
+    seasonText: string;
+    isWinter: boolean;
+    seasonHour: number;
+    seasonMinutes: number;
+  } {
+    const month = new Date(date).getMonth() + 1;
 
-  const time = new Date(date);
+    // 获取冬夏时, 五月到10月之间为夏令时，其他时间为冬令时
+    const isWinter = month < 5 || month > 9;
 
-  if (start) {
-    time.setHours(12);
-    time.setMinutes(seasonMinutes);
-    time.setSeconds(0);
-  } else {
-    time.setHours(13);
-    time.setMinutes(seasonMinutes);
-    time.setSeconds(0);
-  }
+    const seasonHour = 1;
+    const seasonMinutes = isWinter ? 0 : 30;
 
-  return time.getTime();
-}
+    const seasonText = isWinter ? "冬令时" : "夏令时";
+
+    return {
+      seasonText,
+      isWinter,
+      seasonHour,
+      seasonMinutes,
+    };
+  };
 
 // 设置时间返回时间戳
 function getTimestampSetTime(date: Date, hour: number, minute: number, second: number): number {
@@ -61,6 +41,7 @@ function betweenTimes(date: any, start: any, end: any): boolean {
 export const computedWorkTime = function (
   workStart: any,
   workEnd: any,
+  noonDate: any,
   crossing = false
 ): {
   workTime: {
@@ -76,6 +57,61 @@ export const computedWorkTime = function (
 } {
   const { hour: workStartHour, minutes: workStartMinutes } = workStart;
   const { hour: workEndHour, minutes: workEndMinutes } = workEnd;
+  const { hour: noonDateHour, minutes: noonDateMinutes } = noonDate;
+
+  // 获取时令信息
+  const getComputedSeasonInfo = function (date: any): {
+    seasonText: string;
+    isWinter: boolean;
+    seasonHour: number;
+    seasonMinutes: number;
+  } {
+    const month = new Date(date).getMonth() + 1;
+
+    // 获取冬夏时, 五月到10月之间为夏令时，其他时间为冬令时
+    const isWinter = month < 5 || month > 9;
+
+    let seasonHour = 1;
+    let seasonMinutes = isWinter ? 0 : 30;
+
+    if(noonDateHour !== undefined) {
+      seasonHour = noonDateHour
+    }
+
+    if(noonDateMinutes !== undefined) {
+      seasonMinutes = noonDateMinutes
+    }
+
+    const seasonText = isWinter ? "冬令时" : "夏令时";
+
+    return {
+      seasonText,
+      isWinter,
+      seasonHour,
+      seasonMinutes,
+    };
+  };
+
+  // 返回休息时间
+  function setNoonBeakTime(date: Date, start = true): any {
+    // 获取时令信息
+    const { seasonMinutes } = getComputedSeasonInfo(date);
+
+    const time = new Date(date);
+
+    if (start) {
+      time.setHours(12);
+      time.setMinutes(seasonMinutes);
+      time.setSeconds(0);
+    } else {
+      time.setHours(13);
+      time.setMinutes(seasonMinutes);
+      time.setSeconds(0);
+    }
+
+    return time.getTime();
+  }
+
 
   // 时令信息
   let seasonInfo = null;
@@ -156,7 +192,7 @@ export const computedWorkTime = function (
   }
 
   // 时令信息，以开始时间作为处理时间
-  seasonInfo = getSeasonInfo(computedStartTime);
+  seasonInfo = getComputedSeasonInfo(computedStartTime);
   const { seasonHour, seasonMinutes } = seasonInfo;
 
   // 计算总时间差（以毫秒为单位）
@@ -188,6 +224,11 @@ export const computedWorkTime = function (
     computedEndTime === noonBeakTime.endTime ||
     betweenTimes(computedEndTime, noonBeakTime.startTime, noonBeakTime.endTime)
   ) {
+    breakDurationInMinutes = 0;
+  }
+
+  // 如果结束时间位于午休时间之前，设为 0
+  if (computedEndTime < noonBeakTime.startTime) {
     breakDurationInMinutes = 0;
   }
 

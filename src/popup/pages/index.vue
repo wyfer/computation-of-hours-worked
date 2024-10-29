@@ -54,6 +54,7 @@ function submit(): void {
   const { workTime } = computedWorkTime(
     { hour: startHour.value, minutes: startMinute.value },
     { hour: endHour.value, minutes: endMinute.value },
+    { hour: seatHour.value, minutes: seatMinute.value},
     overDay.value
   );
 

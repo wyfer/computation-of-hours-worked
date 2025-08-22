@@ -1,22 +1,36 @@
 {
   "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
     "incremental": true,
     "composite": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "paths": {
-      "@/*": ["./src/*"],
-      "~/*": ["./src/*"],
-      "src/*": ["./src/*"]
-    },
     "resolveJsonModule": true,
-    "types": [
-      "unplugin-icons/types/vue",
-      "webextension-polyfill",
-      "chrome-types"
-    ],
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "~/*": [
+        "./*"
+      ],
+      "src/*": [
+        "./src/*"
+      ],
+      "@assets/*": [
+        "./src/assets/*"
+      ]
+    },
+    "types": [
+      "node",
+      "chrome-types",
+      "@intlify/unplugin-vue-i18n/messages"
+    ]
   },
   "include": [
     "package.json",

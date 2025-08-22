@@ -1,127 +1,87 @@
-import { dirname, relative } from 'node:path'
-import { URL, fileURLToPath } from 'node:url'
-import { crx } from '@crxjs/vite-plugin'
-import vue from '@vitejs/plugin-vue'
-import AutoImport from 'unplugin-auto-import/vite'
-import IconsResolver from 'unplugin-icons/resolver'
-import Icons from 'unplugin-icons/vite'
-import Components from 'unplugin-vue-components/vite'
-import { defineConfig } from 'vite'
-import Pages from 'vite-plugin-pages'
-import { defineViteConfig as define } from './define.config'
-import manifest from './manifest.firefox.config'
+import { crx } from "@crxjs/vite-plugin"
+import { defineConfig, mergeConfig, UserConfig, PluginOption } from "vite"
+import zipPack from "vite-plugin-zip-pack"
+import manifest from "./manifest.firefox.config"
+import packageJson from "./package.json" with { type: "json" }
+import baseConfig from "./vite.config"
+import chalk from "chalk"
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-      '~': fileURLToPath(new URL('./src', import.meta.url)),
-      src: fileURLToPath(new URL('./src', import.meta.url)),
-    },
-  },
-  plugins: [
-    // legacy({
-    //   targets: ['defaults'],
-    // }),
+const IS_DEV = process.env.NODE_ENV === "development"
+const browser = "firefox"
+const outDir = "dist"
+const browserOutDir = `${outDir}/${browser}`
+const outFileName = `${browser}-${packageJson.version}.zip`
 
+const printMessage = (isDev: boolean): void => {
+  setTimeout(() => {
+    console.info("\n")
+    console.info(chalk.greenBright(`✅ Successfully built for ${browser}.`))
+    if (isDev) {
+      console.info(
+        chalk.greenBright(
+          `🚀 Load the extension via ${browser}://extensions/, enable "Developer mode", click "Load unpacked", and select the directory:`,
+        ),
+      )
+      console.info(chalk.greenBright(`📂 ${browserOutDir}`))
+    } else {
+      console.info(
+        chalk.greenBright(
+          `📦 Zip File: ${outDir}/${outFileName} (Upload to the store)`,
+        ),
+      )
+      console.info(chalk.greenBright(`🚀 Load manually from ${browserOutDir}`))
+    }
+    console.info("\n")
+  }, 50)
+}
+
+// Create build message plugin
+const createBuildMessagePlugin = (isDev: boolean): PluginOption => ({
+  name: "vite-plugin-build-message",
+  enforce: "post" as const,
+  ...(isDev
+    ? {
+        configureServer(server) {
+          server.httpServer?.once("listening", () => printMessage(true))
+        },
+      }
+    : {}),
+  closeBundle: { sequential: true, handler: () => printMessage(isDev) },
+})
+
+// Define browser-specific configuration
+export default defineConfig(() => {
+  // Create plugins based on environment
+  const browserPlugins: PluginOption[] = [
     crx({
       manifest,
-      browser: 'firefox',
+      browser,
+      contentScripts: { injectCss: true },
     }),
+    createBuildMessagePlugin(IS_DEV),
+  ]
 
-    vue(),
+  // Add zip plugin for production builds
+  if (!IS_DEV) {
+    browserPlugins.push(
+      zipPack({
+        inDir: browserOutDir,
+        outDir,
+        outFileName,
+        filter: (_, filePath, isDirectory) =>
+          !(isDirectory && filePath.includes(".vite")),
+      }) as PluginOption,
+    )
+  }
 
-    Pages({
-      dirs: [
-        {
-          dir: 'src/pages',
-          baseRoute: '',
-        },
-        {
-          dir: 'src/setup/pages',
-          baseRoute: 'setup',
-        },
-        {
-          dir: 'src/popup/pages',
-          baseRoute: 'popup',
-        },        
-        {
-          dir: 'src/options/pages',
-          baseRoute: 'options',
-        },
-        {
-          dir: 'src/content-script/iframe/pages',
-          baseRoute: 'iframe',
-        },
-      ],
-    }),
-
-    AutoImport({
-      imports: ['vue', 'vue-router', 'vue/macros', '@vueuse/core'],
-      dts: 'src/types/auto-imports.d.ts',
-      dirs: ['src/composables/', 'src/stores/', 'src/utils/'],
-    }),
-
-    // https://github.com/antfu/unplugin-vue-components
-    Components({
-      dirs: ['src/components'],
-      // generate `components.d.ts` for ts support with Volar
-      dts: 'src/types/components.d.ts',
-      resolvers: [
-        // auto import icons
-        IconsResolver({
-          prefix: 'i',
-          enabledCollections: ['mdi'],
-        }),
-      ],
-    }),
-
-    // https://github.com/antfu/unplugin-icons
-    Icons({
-      autoInstall: true,
-      compiler: 'vue3',
-      scale: 1.5,
-    }),
-
-    // rewrite assets to use relative path
-    {
-      name: 'assets-rewrite',
-      enforce: 'post',
-      apply: 'build',
-      transformIndexHtml(html, { path }) {
-        return html.replace(
-          /"\/assets\//g,
-          `"${relative(dirname(path), '/assets')}/`
-        )
-      },
+  // Create browser-specific config
+  const browserConfig: UserConfig = {
+    build: {
+      outDir: browserOutDir,
     },
-  ],
-  build: {
-    rollupOptions: {
-      input: {
-        iframe: 'src/content-script/iframe/index.html',
-        popup: 'src/popup/index.html',
-        setup: 'src/setup/index.html',
-        options: 'src/options/index.html',
-      },
-    },
-    minify: 'terser',
-    terserOptions: {},
-    outDir: 'dist/computation-of-hours-worked-firefox',
-  },
-  server: {
-    port: 8888,
-    strictPort: true,
-    hmr: {
-      port: 8889,
-      overlay: false,
-    },
-  },
-  optimizeDeps: {
-    include: ['vue', '@vueuse/core'],
-    exclude: ['vue-demi'],
-  },
-  assetsInclude: ['src/assets/*/**'],
-  define,
+    plugins: browserPlugins,
+  }
+
+  // Merge with base config and return
+  return mergeConfig(baseConfig, browserConfig)
 })

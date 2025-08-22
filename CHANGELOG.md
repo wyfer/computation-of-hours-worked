@@ -1,11 +1,18 @@
+# Change Log
+
+## Example update
+
 - Update README.md
+- Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget ultricies aliquam, nunc nisl ultricies nunc, vitae ultricies.
 
-- 第一版，经历了多次调整，经不住还是重新调整了一下计算逻辑
+- Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget ultricies aliquam, nunc nisl ultricies nunc, vitae ultricies.
 
-- 最多跨1天，我反正是不相信有人能一直上班24+小时的，不怕猝死吗
+- [x] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget ultricies aliquam, nunc nisl ultricies nunc, vitae ultricies.
 
-- ~~增加了提示，用于处理异常和错误情况~~
+- [ ] Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget ultricies aliquam, nunc nisl ultricies nunc, vitae ultricies.
 
-- 我们现在可以正确计算冬夏令时啦，而且也去掉了烦人的错误提示，请大家放心使用啦
-
-- gitHub: https://github.com/wyfer/computation-of-hours-worked
+| Left columns | Right columns | Center Align |
+| ------------ | ------------: | :----------: |
+| left foo     |     right foo |  center foo  |
+| left bar     |     right bar |  center bar  |
+| left baz     |     right baz |  center baz  |
